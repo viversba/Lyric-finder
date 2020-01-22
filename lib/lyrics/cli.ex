@@ -1,9 +1,11 @@
 defmodule Lyrics.CLI do
-    
+    require Logger
+
     def main(argv) do
         argv 
             |> parse_args
             |> process
+            |> write_to_file
     end
 
     def parse_args(argv) do
@@ -14,8 +16,6 @@ defmodule Lyrics.CLI do
     end
     
     def args_to_internal_representation([artist, song]) do
-        artist = String.replace artist, " ", "%20"
-        song = String.replace song, " ", "%20"
         {artist, song}
     end
     def args_to_internal_representation(_) do
@@ -29,6 +29,11 @@ defmodule Lyrics.CLI do
         System.halt
     end
     def process({artist, song}) do
-        Lyrics.APIFetcher.fetch(artist, song)
+        {artist, song, Lyrics.APIFetcher.fetch(artist, song)}
+    end
+
+    def write_to_file({artist, song , lyrics}) do
+        IO.inspect File.write("#{song}.txt", lyrics)
+        Logger.info("Open file #{song}.txt")
     end
 end
