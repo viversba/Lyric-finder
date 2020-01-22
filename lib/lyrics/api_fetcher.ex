@@ -8,18 +8,20 @@ defmodule Lyrics.APIFetcher do
         url(artist, song)
             |> HTTPoison.get()
             |> handle_response
-            # |> IO.inspect
     end
 
     def url(artist, song) do
         "#{@api_url}/#{artist}/#{song}"
     end
     
-    def handle_response({_, %{status_code: status_code, body: body}}) do
+    def handle_response({_, %{status_code: 200, body: body}}) do
         Logger.info("Done")
         parsed = body  
                 |> Poison.Parser.parse!()
         lyrics = ~s(#{parsed["lyrics"]} \n)
         IO.write lyrics
+    end
+    def handle_response({_, %{status_code: _, body: body}}) do
+        Logger.info("Couldn't find song")
     end
 end
